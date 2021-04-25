@@ -1,0 +1,25 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Jay Gurav <mrithyunjay2799@gmail.com> (http://github.com/JayMGurav)",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.3.15",
+    "apollo-server-micro": "^2.23.0",
+    "bcrypt": "^5.0.1",
+    "graphql": "^15.5.0",
+    "graphql-tools": "^7.0.4",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.5",
+    "next": "10.0.7",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "react-hook-form": "^6.15.4"
+  }
+}
