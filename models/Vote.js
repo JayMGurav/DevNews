@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const LinkSchema = new mongoose.Schema({
+const VoteSchema = new mongoose.Schema({
   link: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Link'
@@ -12,4 +12,5 @@ const LinkSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-export default mongoose.models.Vote || mongoose.model('Vote', LinkSchema)
+VoteSchema.index({link: 1, user: 1});
+export default mongoose.models.Vote || mongoose.model('Vote', VoteSchema)

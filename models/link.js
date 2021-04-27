@@ -16,5 +16,8 @@ const LinkSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-
+LinkSchema.index(
+  {description: "text", url: "text"},
+  {name: "LinkIndex", description: 10, url: 5 }
+)
 export default mongoose.models.Link || mongoose.model('Link', LinkSchema)

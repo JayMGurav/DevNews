@@ -39,7 +39,7 @@ export default gql`
   type Query {
     user(id: ID!): User
     users: [User!]
-    feed: [Link!]
+    feed(filter: String): [Link!]
     link(id: ID!): Link
   }
 

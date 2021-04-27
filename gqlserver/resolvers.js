@@ -1,6 +1,9 @@
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 
+const LINK_CREATED = "LINK_CREATED";
+const LINK_VOTED = "LINK_VOTED";
+
 export default {
   User:{
     async links(parent, __, {Link}){
@@ -37,10 +40,10 @@ export default {
 // Subscriptions
 Subscription: {
   newLink: {
-    subscribe: (_, __ , { pubsub }) => pubsub.asyncIterator("LINK_CREATED"),
+    subscribe: (_, __ , { pubsub }) => pubsub.asyncIterator([LINK_CREATED]),
   },
   newVote: {
-    subscribe: (_, __ , { pubsub }) => pubsub.asyncIterator(["LINK_VOTED"]),
+    subscribe: (_, __ , { pubsub }) => pubsub.asyncIterator([LINK_VOTED]),
   }
 },
 
@@ -54,8 +57,13 @@ Subscription: {
     async users(_ , __, { User }){
       return await User.find({}).exec()
     },
-    async feed(_, __, { Link }){
-      return await Link.find({}).exec();
+    async feed(_, { filter }, { Link }){
+      const queryCondition = filter ? {
+        $text : { $search: filter }
+      } : {};
+      
+      const sortCondition = filter ? { score: { $meta: "textScore" } } : { "createdAt" : -1 };
+      return await Link.find(queryCondition).sort(sortCondition).exec();
     },
     async link(_ , {id}, { Link }){
       return await  Link.findById(id).exec();
@@ -107,7 +115,7 @@ Subscription: {
       }
     },
 
-    async post(_, {url,description}, {Link}){
+    async post(_, {url,description}, {Link,pubsub}){
       const link = await Link.findOne({
         url
       }).exec()
