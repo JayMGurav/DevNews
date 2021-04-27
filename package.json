@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "devnews",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Jay Gurav <mrithyunjay2799@gmail.com> (http://github.com/JayMGurav)",
@@ -14,6 +14,7 @@
     "apollo-server-micro": "^2.23.0",
     "bcrypt": "^5.0.1",
     "graphql": "^15.5.0",
+    "graphql-subscriptions": "^1.2.1",
     "graphql-tools": "^7.0.4",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.5",

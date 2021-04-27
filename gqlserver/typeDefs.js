@@ -7,15 +7,29 @@ export default gql`
     name: String!
     email: String!
     links: [Link!]
+    votes: [Vote!]
   }
 
   type Link {
     id: ID!
     description: String!
     url: String!
+    postedBy: User!
+    votes: [Vote!]
     createdAt: String!
-    postedBy: User
   }
+
+  type Vote {
+    id: ID!
+    link: Link!
+    user: User!
+  }
+
+  type Subscription {
+    newLink: Link
+    newVote: Vote
+  }
+
 
   type AuthPayload {
     token: String
@@ -34,7 +48,8 @@ export default gql`
     login(email: String!, password: String!): AuthPayload
     post(url: String!, description: String!): Link!
     updateLink(id: ID!, url: String, description: String): Link
-    deleteLink(id: ID!): Link
+    deleteLink(id: ID!): Link!
+    vote(linkId: ID!): Vote!
+    deleteVote(linkId: ID!): Vote!
   }
 `
-

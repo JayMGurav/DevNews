@@ -7,7 +7,8 @@ const LinkSchema = new mongoose.Schema({
   },
   url: {
     type: String,
-    required: [true, "url is required field"]
+    required: [true, "url is required field"],
+    unique: true
   },
   postedBy: {
     type: mongoose.Schema.Types.ObjectId,
