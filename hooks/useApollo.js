@@ -1,29 +1,11 @@
 import { useMemo } from 'react'
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { HttpLink } from '@apollo/client/link/http';
-// import { SchemaLink } from '@apollo/client/link/schema';
-
-
-// const SchemaLink = dynamic(
-//   () => import('@apollo/client/link/schema').then((mod) => mod.SchemaLink),
-//   { ssr: true }
-// );
-  
-
-// const HttpLink  = dynamic(
-//   () => import('@apollo/client/link/http').then((mod) => mod.HttpLink ),
-//   { ssr: true }
-// );
-  
-// const schema = dynamic(
-//   () => import('@/gqlserver/schema'),
-//   { ssr: true }
-// );
-
 
 let apolloClient;
 // const APOLLO_STATE = "APOLLO_STATE";
-
+const uri = 'http://localhost:3000/api/graphql';
+// console.log(uri)
 function createIsomorphicPhoneBookLink(){
   if(typeof window == 'undefined'){
     const { SchemaLink } = require('@apollo/client/link/schema');
@@ -41,7 +23,10 @@ function createIsomorphicPhoneBookLink(){
 function createApolloClient() {
   return new ApolloClient({
     ssrMode: typeof window === 'undefined',
-    link: createIsomorphicPhoneBookLink(),
+    link:  new HttpLink({
+      uri: uri,
+      credentials: 'same-origin',
+    }),
     cache: new InMemoryCache(),
     
     name: "next_web_client",

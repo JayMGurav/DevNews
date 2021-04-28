@@ -6,6 +6,7 @@ import schema from "@/gqlserver/schema";
 import User from "@/models/User";
 import Link from "@/models/Link";
 import Vote from "@/models/vote";
+import { getLoginSession } from "@/lib/auth";
 
 const { MONGODB_URI } = process.env;
 
@@ -21,22 +22,42 @@ if (!cached) {
 }
 const pubsub = new PubSub();
 
+
+function runMiddleware(req, res, fn) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result) => {
+      if (result instanceof Error) {
+        return reject(result)
+      }
+
+      return resolve(result)
+    })
+  })
+}
+
+
+
+
 const apolloServer = new ApolloServer({
   schema,
-  subscriptions: {
-    path: '/api/subscriptions',
-    onConnect: console.log('subscription connected'),
+  // subscriptions: {
+  //   path: '/api/subscriptions',
+  //   onConnect: console.log('subscription connected'),
 
-  },
+  // },
   async context({ req, res }) {
     // set up auth
-
+    const session = getLoginSession(req);
+    console.log(session);
     if (cached.conn) {
       return {
         User,
         Link,
         Vote,
-        pubsub
+        pubsub,
+        req,
+        res,
+        session
       };
     }
     try {
@@ -61,7 +82,10 @@ const apolloServer = new ApolloServer({
         User,
         Link,
         Vote,
-        pubsub
+        pubsub,
+        req,
+        res,
+        session
       };
     } catch (error) {
       console.error("Error connecting mongoDB", error.message);
@@ -75,17 +99,19 @@ export const config = {
   },
 };
 
-export default (req, res, next) => {
-// does not support fash-referesh our how reload: as stale listerners should be deleted 
-
-  if (!res.socket.server.apolloServer) {
-    console.log(`* apolloServer initialization *`);
-
-    apolloServer.installSubscriptionHandlers(res.socket.server);
-    const handler = apolloServer.createHandler({ path: '/api/graphql' });
-    res.socket.server.apolloServer = handler;
-  }
-
-  return res.socket.server.apolloServer(req, res, next);
+export default async (req, res, next) => {
+    // does not support fash-referesh our how reload: as stale listerners should be deleted 
+    // await runMiddleware(req, res);
+    if (!res.socket.server.apolloServer) {
+      console.log(`* apolloServer initialization *`);
+  
+      apolloServer.installSubscriptionHandlers(res.socket.server);
+      const handler = apolloServer.createHandler({ path: '/api/graphql' });
+      res.socket.server.apolloServer = handler;
+    }
+  
+    return res.socket.server.apolloServer(req, res, next);
     // apolloServer.createHandler({ path: "/api/graphql" })
 };
+
+// export default apolloServer.createHandler({ path: '/api/graphql' });

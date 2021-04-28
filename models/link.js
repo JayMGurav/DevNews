@@ -13,6 +13,11 @@ const LinkSchema = new mongoose.Schema({
   postedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  voteCount: {
+    type: Number,
+    default: 0,
+    required: true
   }
 }, { timestamps: true });
 

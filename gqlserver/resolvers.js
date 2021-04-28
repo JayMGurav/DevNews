@@ -1,3 +1,5 @@
+import { setLoginSession } from "@/lib/auth";
+import { MAX_AGE, setTokenCookie } from "@/lib/authCookies";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 
@@ -50,19 +52,33 @@ Subscription: {
 
 // Queries
   Query: {
-
+    async isLoggedIn(_, __, {session}){
+      return Boolean(session?.userId);
+    },
+    async isRegisteredUser(_, {email}, {User}){
+      const user = await User.findOne({email}).exec();
+      return Boolean(user);
+    },
     async user(_, { id }, { User }){
       return await User.findById(id).exec();
     },
     async users(_ , __, { User }){
       return await User.find({}).exec()
     },
-    async feed(_, { filter }, { Link }){
+    async feed(_, { filter, orderBy }, { Link }){
       const queryCondition = filter ? {
         $text : { $search: filter }
       } : {};
       
-      const sortCondition = filter ? { score: { $meta: "textScore" } } : { "createdAt" : -1 };
+      const sortCondition = { 
+        "voteCount" : orderBy?.voteCount || -1,
+        "createdAt" : orderBy?.createdAt || -1
+      };
+      
+      if(filter){
+        sortCondition.score = { $meta: "textScore" };
+      }
+
       return await Link.find(queryCondition).sort(sortCondition).exec();
     },
     async link(_ , {id}, { Link }){
@@ -73,7 +89,7 @@ Subscription: {
 
   Mutation: {
 
-    async signup(_, {email, password, name}, {User}){
+    async signup(_, {email, password, name}, {User, res}){
       const existingUser = await User.findOne({email}).exec();
 
       if(Boolean(existingUser)){
@@ -87,16 +103,21 @@ Subscription: {
         password: passwordHash
       });
 
-      const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET);
+      const token = jwt.sign({
+        userId: user.id,
+        createdAt: Date.now(),
+        maxAge: MAX_AGE
+      }, process.env.JWT_SECRET);
+      
+      setTokenCookie(res, token)
 
       return {
         token,
         user
       }
-
     },
 
-    async login(_, {email, password}, {User}){
+    async login(_, {email, password}, {User, res}){
       const user = await User.findOne({email}).exec()
       if (!user) {
         throw new Error('No such user found');
@@ -106,9 +127,15 @@ Subscription: {
       if (!valid) {
         throw new Error('Invalid password!');
       }
-
-      const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET);
       
+      const token = jwt.sign({
+        userId: user.id,
+        createdAt: Date.now(),
+        maxAge: MAX_AGE
+      }, process.env.JWT_SECRET);
+      
+      setTokenCookie(res, token)
+
       return {
         token,
         user
@@ -116,6 +143,10 @@ Subscription: {
     },
 
     async post(_, {url,description}, {Link,pubsub}){
+
+      // check user
+      const userId = "6087d97fbd75ae12c4ef40ad";
+
       const link = await Link.findOne({
         url
       }).exec()
@@ -127,7 +158,7 @@ Subscription: {
       const newLink = await Link.create({
         url,
         description,
-        postedBy: "60857324de0a0c5524f678ff"
+        postedBy: userId
       });
 
       pubsub.publish("LINK_CREATED", {newLink});
@@ -152,29 +183,33 @@ Subscription: {
       });
     },
 
-    async vote(_, {linkId}, { Vote,pubsub }){
-
-      const userId = "60857324de0a0c5524f678ff";
+    async vote(_, {linkId}, { Vote, Link ,pubsub }){
+      const userId = "6087d97fbd75ae12c4ef40ad";
 
       const vote = await Vote.findOne({
         link: linkId,
         user: userId
       }).exec();
-      console.log({vote});
       
       if(Boolean(vote)){
         throw new Error(`Already voted for link: ${linkId}`)
       }
-      
-      
       
       const newVote =  await Vote.create({
         link: linkId,
         user: userId
       });
       
+      await Link.findByIdAndUpdate(
+        linkId,
+        {$inc: {voteCount: 1}},
+        {new: true}
+      )
       // publish 
-      pubsub.publish("LINK_VOTED", {newVote});
+      pubsub.publish("LINK_VOTED", {
+        newVote
+      });
+
       return newVote;
     }
   }

@@ -16,6 +16,7 @@ export default gql`
     url: String!
     postedBy: User!
     votes: [Vote!]
+    voteCount: Int!
     createdAt: String!
   }
 
@@ -36,11 +37,23 @@ export default gql`
     user: User
   }
 
+  input LinkOrderByInput {
+    createdAt: Sort
+    voteCount: Sort
+  }
+
+  enum Sort {
+    asc
+    desc
+  }
+
   type Query {
+    isRegisteredUser(email: String!): Boolean!
     user(id: ID!): User
     users: [User!]
-    feed(filter: String): [Link!]
+    feed(filter: String, orderBy: LinkOrderByInput): [Link!]
     link(id: ID!): Link
+    isLoggedIn: Boolean!
   }
 
   type Mutation {

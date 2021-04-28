@@ -10,6 +10,10 @@ const UserSchema = new mongoose.Schema({
     required: [true, "email is required field"],
     unique: true
   },
+  password:  {
+    type: String,
+    required: [true, "password is required field"],
+  },
 },{timestamps: true });
 
 UserSchema.index({email: 1});
