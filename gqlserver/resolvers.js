@@ -1,6 +1,6 @@
 import { setLoginSession } from "@/lib/auth";
 import { removeTokenCookie } from "@/lib/authCookies";
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs";
 
 const LINK_CREATED = "LINK_CREATED";
 const LINK_VOTED = "LINK_VOTED";
@@ -95,7 +95,9 @@ Subscription: {
         throw new Error(`User with ${email} already exist`);
       }
 
-      const passwordHash = await bcrypt.hash(password, 10);
+      // const passwordHash = await bcrypt.hash(password, 10);
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(password, salt)
       const user = await User.create({
         name,
         email,
