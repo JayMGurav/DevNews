@@ -4,7 +4,7 @@ import { HttpLink } from '@apollo/client/link/http';
 
 let apolloClient;
 // const APOLLO_STATE = "APOLLO_STATE";
-const uri = `http://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/graphql`;
+const uri = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/graphql`;
 // console.log(uri)
 // function createIsomorphicPhoneBookLink(){
 //   if(typeof window == 'undefined'){
