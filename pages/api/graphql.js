@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import schema from "@/gqlserver/schema";
 import User from "@/models/User";
 import Link from "@/models/Link";
-import Vote from "@/models/vote";
+import Vote from "@/models/Vote";
 import { getLoginSession } from "@/lib/auth";
 
 const { MONGODB_URI } = process.env;
