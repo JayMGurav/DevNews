@@ -3,9 +3,9 @@ import { PubSub } from 'graphql-subscriptions';
 import mongoose from "mongoose";
 
 import schema from "@/gqlserver/schema";
-import User from "@/models/User";
-import Link from "@/models/Link";
-import Vote from "@/models/Vote";
+import User from "@/models/UserModel";
+import Link from "@/models/LinkModel";
+import Vote from "@/models/VoteModel";
 import { getLoginSession } from "@/lib/auth";
 
 const { MONGODB_URI } = process.env;
@@ -22,33 +22,11 @@ if (!cached) {
 }
 const pubsub = new PubSub();
 
-
-function runMiddleware(req, res, fn) {
-  return new Promise((resolve, reject) => {
-    fn(req, res, (result) => {
-      if (result instanceof Error) {
-        return reject(result)
-      }
-
-      return resolve(result)
-    })
-  })
-}
-
-
-
-
 const apolloServer = new ApolloServer({
   schema,
-  // subscriptions: {
-  //   path: '/api/subscriptions',
-  //   onConnect: console.log('subscription connected'),
-
-  // },
   async context({ req, res }) {
     // set up auth
     const session = getLoginSession(req);
-    console.log(session);
     if (cached.conn) {
       return {
         User,
