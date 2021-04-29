@@ -1,7 +1,5 @@
-// import { useEffect } from "react";
 import Head from 'next/head';
-import LinkList from "@/components/LinkList";
-import { Container, Heading, Center, Button, Flex } from '@chakra-ui/react';
+import { Container, Heading, Flex } from '@chakra-ui/react';
 import Login from '@/components/Login';
 import { IS_LOGGED_IN_QUERY } from '@/gqlClient/queries.graphql';
 
@@ -13,12 +11,9 @@ export default function Home(){
       <Head>
         <title>Devnews</title>
       </Head>
-      {/* <LinkList/> */}
-      {/* <CreateLink/> */}
       <Container w="100%" h="100vh" minH="100vh">
         <Flex w="100%" h="100%" flexDirection="column" align="center" justify="center">
           <Heading as="h1" size="xl" mb="10">📰DevNews</Heading>
-          {/* <Button size="sm" variant="pushable">click</Button> */}
           <Login/>
         </Flex>
       </Container>

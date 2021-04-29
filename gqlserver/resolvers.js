@@ -1,7 +1,6 @@
 import { setLoginSession } from "@/lib/auth";
-import { MAX_AGE, setTokenCookie } from "@/lib/authCookies";
+import { removeTokenCookie } from "@/lib/authCookies";
 import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken";
 
 const LINK_CREATED = "LINK_CREATED";
 const LINK_VOTED = "LINK_VOTED";
@@ -103,18 +102,10 @@ Subscription: {
         password: passwordHash
       });
 
-      const token = jwt.sign({
-        userId: user.id,
-        createdAt: Date.now(),
-        maxAge: MAX_AGE
-      }, process.env.JWT_SECRET);
-      
-      setTokenCookie(res, token)
+      // set httpOnly cookie
+      setLoginSession(res, {userId: user.id})
 
-      return {
-        token,
-        user
-      }
+      return user
     },
 
     async login(_, {email, password}, {User, res}){
@@ -128,19 +119,17 @@ Subscription: {
         throw new Error('Invalid password!');
       }
       
-      const token = jwt.sign({
-        userId: user.id,
-        createdAt: Date.now(),
-        maxAge: MAX_AGE
-      }, process.env.JWT_SECRET);
-      
-      setTokenCookie(res, token)
-
-      return {
-        token,
-        user
-      }
+      // set httpOnly cookie
+        setLoginSession(res, {userId: user.id})
+  
+        return user;
     },
+
+    async signOut(_, __, {res}) {
+      removeTokenCookie(res)
+      return true
+    },
+
 
     async post(_, {url,description}, {Link,pubsub}){
 

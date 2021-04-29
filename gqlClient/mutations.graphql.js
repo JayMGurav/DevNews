@@ -24,7 +24,7 @@ export const SIGNUP_MUTATION = gql`
       password: $password
       name: $name
     ) {
-      token
+      name
     }
   }
 `;
@@ -36,7 +36,7 @@ export const LOGIN_MUTATION = gql`
     $password: String!
   ) {
     login(email: $email, password: $password) {
-      token
+      name
     }
   }
 `;

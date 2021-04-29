@@ -6,7 +6,6 @@ import { useRouter } from 'next/router'
 import {
   Alert,
   AlertIcon,
-  AlertTitle,
   AlertDescription,
   Modal,
   ModalOverlay,
@@ -44,7 +43,7 @@ export default function SignupModal({ email, password, isOpen, onOpen, onClose, 
         return false
       });
       
-      localStorage.setItem('token',signup.token);
+      
       router.push('/news');
     },
     onError: (error) => {

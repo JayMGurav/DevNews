@@ -32,11 +32,6 @@ export default gql`
   }
 
 
-  type AuthPayload {
-    token: String
-    user: User
-  }
-
   input LinkOrderByInput {
     createdAt: Sort
     voteCount: Sort
@@ -57,8 +52,9 @@ export default gql`
   }
 
   type Mutation {
-    signup(email: String!, password: String!, name: String!): AuthPayload
-    login(email: String!, password: String!): AuthPayload
+    signup(email: String!, password: String!, name: String!): User
+    login(email: String!, password: String!): User
+    signOut: Boolean!
     post(url: String!, description: String!): Link!
     updateLink(id: ID!, url: String, description: String): Link
     deleteLink(id: ID!): Link!
@@ -66,3 +62,4 @@ export default gql`
     deleteVote(linkId: ID!): Vote!
   }
 `
+
