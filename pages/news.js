@@ -1,16 +1,24 @@
 import Head from 'next/head';
+import {Box} from "@chakra-ui/react";
+
 import { IS_LOGGED_IN_QUERY } from '@/gqlClient/queries.graphql';
 import { initializeApollo } from '@/hooks/useApollo';
-
+import Layout from "@/components/Layout";
+import CreateLink from "@/components/CreateLink"
+import FeedList from '@/components/FeedList';
 
 export default function PostNews(){
   return(
-    <div>
+    <Layout>
       <Head>
-        <title>Devnews | post news</title>
+        <title>Devnews | news</title>
       </Head>
-      <h1>News</h1>
-    </div>
+      
+      <Box w="100%" py="4" my="4">
+        <CreateLink/>
+        <FeedList/> 
+      </Box>
+    </Layout>
   );
 }
 

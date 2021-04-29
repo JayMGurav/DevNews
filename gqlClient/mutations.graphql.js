@@ -5,10 +5,30 @@ export const CREATE_LINK_MUTATION  = gql`
     $description: String!
     $url: String!
   ) {
-    post(description: $description, url: $url) {
+    post( url: $url, description: $description) {
       id
       url
       description
+    }
+  }
+`;
+
+export const VOTE_MUTATION = gql`
+  mutation VoteMutation($linkId: ID!) {
+    vote(linkId: $linkId) {
+      id
+      link {
+        id
+        votes{
+          id
+          user {
+            id
+          }
+        }
+      }
+      user {
+        id
+      }
     }
   }
 `;

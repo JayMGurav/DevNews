@@ -133,10 +133,11 @@ Subscription: {
     },
 
 
-    async post(_, {url,description}, {Link,pubsub}){
+    async post(_, {url,description}, {Link,pubsub, session}){
 
-      // check user
-      const userId = "6087d97fbd75ae12c4ef40ad";
+      if(!Boolean(session)){
+        throw new Error(`Sign in to post link`)
+      }
 
       const link = await Link.findOne({
         url
@@ -149,7 +150,7 @@ Subscription: {
       const newLink = await Link.create({
         url,
         description,
-        postedBy: userId
+        postedBy: session.userId
       });
 
       pubsub.publish("LINK_CREATED", {newLink});
@@ -174,12 +175,15 @@ Subscription: {
       });
     },
 
-    async vote(_, {linkId}, { Vote, Link ,pubsub }){
-      const userId = "6087d97fbd75ae12c4ef40ad";
+    async vote(_, {linkId}, { Vote, Link ,pubsub,session }){
+     
+      if(!Boolean(session)){
+        throw new Error(`Sign in to post link`)
+      }
 
       const vote = await Vote.findOne({
         link: linkId,
-        user: userId
+        user: session.userId
       }).exec();
       
       if(Boolean(vote)){
@@ -188,7 +192,7 @@ Subscription: {
       
       const newVote =  await Vote.create({
         link: linkId,
-        user: userId
+        user: session.userId
       });
       
       await Link.findByIdAndUpdate(

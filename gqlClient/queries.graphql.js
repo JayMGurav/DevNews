@@ -1,13 +1,25 @@
 import { gql } from '@apollo/client';
 
 export const FEED_QUERY = gql`
-  {
-    feed {
+  query FeedQuery(
+    $orderBy: LinkOrderByInput
+  ) {
+    feed(orderBy: $orderBy) {
       id
       description
       url
       voteCount
       createdAt
+      votes {
+        id
+        user {
+          id
+        }
+      }
+      postedBy{
+        id
+        name
+      }
     }
   }
 `;
