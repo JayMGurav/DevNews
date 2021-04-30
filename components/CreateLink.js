@@ -29,7 +29,7 @@ export default function CreateLink(){
 
   const [postLink, { error: postlinkError }] = useMutation(CREATE_LINK_MUTATION, {
     update: (cache, { data: { post } }) => {
-      const orderBy = { createdAt: 'desc' };
+      const orderBy = { createdAt: 'desc', voteCount: 'desc' };
       const data = cache.readQuery({
         query: FEED_QUERY,
         variables: {
@@ -65,7 +65,6 @@ export default function CreateLink(){
   }); 
 
   const onSubmit = (data) => {
-    console.log(data);
     setLoading(() => {
       setLoadingMsg("Posting...")
       return true;

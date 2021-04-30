@@ -1,4 +1,5 @@
 import { FEED_QUERY } from '@/gqlClient/queries.graphql';
+import { NEW_LINKS_SUBSCRIPTION, NEW_VOTES_SUBSCRIPTION } from '@/gqlClient/subscription.graphql';
 import { useQuery } from '@apollo/client';
 import { 
   Box, 
@@ -16,12 +17,34 @@ import LinkComponent from './LinkComponent';
 
 export default function FeedList(){
   const [errorMsg, setErrorMessage] = useState('');
-  const { data, loading, error } = useQuery(FEED_QUERY, {
+  const { data, loading, error, subscribeToMore } = useQuery(FEED_QUERY, {
     variables: {
-      orderBy: { createdAt: 'desc' }
-    }
+      orderBy: { createdAt: 'desc', voteCount: 'desc' }
+    },
   });
  
+  // subscribeToMore({
+  //   document: NEW_LINKS_SUBSCRIPTION,
+  //   updateQuery: (prevRes, { subscriptionData }) => {
+  //     if (!subscriptionData.data) return prevRes;
+
+  //     const newLink = subscriptionData.data.newLink;
+  //     const exists = prevRes.feed.find(
+  //       ({ id }) => id === newLink.id
+  //     );
+
+  //     if (exists) return prevRes;
+
+  //     return Object.assign({}, prevRes, {
+  //       feed:  [newLink, ...prevRes.feed]
+  //     });
+  //   }
+  // })
+
+  // subscribeToMore({
+  //   document: NEW_VOTES_SUBSCRIPTION
+  // });
+
   useEffect(() => {
     let timeOutId;
     if(errorMsg){
@@ -48,7 +71,7 @@ export default function FeedList(){
           <AlertDescription>{errorMsg}</AlertDescription>
         </Alert>)
         }
-      <Skeleton startColor="black.200" endColor="teal.400" borderRadius="md" isLoaded={!loading}>
+      <Skeleton startColor="black.200" endColor="black.500" borderRadius="md" isLoaded={!loading}>
       {data?.feed?.length > 0 ? (
         <>
           {data.feed.map((link) => (

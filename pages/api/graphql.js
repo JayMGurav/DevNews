@@ -24,49 +24,81 @@ const pubsub = new PubSub();
 
 const apolloServer = new ApolloServer({
   schema,
-  async context({ req, res }) {
-    // set up auth
-    const session = getLoginSession(req);
-    if (cached.conn) {
-      return {
-        User,
-        Link,
-        Vote,
-        pubsub,
-        req,
-        res,
-        session
-      };
-    }
-    try {
-      if (!cached.promise) {
-        const opts = {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-          bufferCommands: false,
-          bufferMaxEntries: 0,
-          useFindAndModify: false,
-          useCreateIndex: true,
-        };
 
-        cached.promise = mongoose
-          .connect(MONGODB_URI, opts)
-          .then((mongoose) => {
-            return mongoose;
-          });
-      }
-      cached.conn = await cached.promise;
+  subscriptions: {
+    path: '/api/graphqlSubscriptions',
+    keepAlive: 9000,
+    onConnect: (connectionParams, websocket, context) => {
+      // get cookie from request headers
+      console.log('subscription connected')
+      const session = getLoginSession(context.request);
       return {
+        session
+      }
+    },
+    onDisconnect: () => console.log('subscription disconnected'),
+  },
+  playground: {
+    // subscriptionEndpoint: '/api/graphqlSubscriptions',
+    settings: {
+      "request.credentials": "same-origin"
+    }
+  },
+ 
+
+  async context({ req, res, connection }) {
+    if(connection){
+      // websocket connection
+      return {
+        ...connection.context,
         User,
         Link,
         Vote,
-        pubsub,
-        req,
-        res,
-        session
-      };
-    } catch (error) {
-      console.error("Error connecting mongoDB", error.message);
+        pubsub
+      }
+    }else {
+      const session = getLoginSession(req);
+      if (cached.conn) {
+        return {
+          User,
+          Link,
+          Vote,
+          pubsub,
+          req,
+          res,
+          session
+        };
+      }
+      try {
+        if (!cached.promise) {
+          const opts = {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            bufferCommands: false,
+            bufferMaxEntries: 0,
+            useFindAndModify: false,
+            useCreateIndex: true,
+          };
+
+          cached.promise = mongoose
+            .connect(MONGODB_URI, opts)
+            .then((mongoose) => {
+              return mongoose;
+            });
+        }
+        cached.conn = await cached.promise;
+        return {
+          User,
+          Link,
+          Vote,
+          pubsub,
+          req,
+          res,
+          session
+        };
+      } catch (error) {
+        console.error("Error connecting mongoDB", error.message);
+      }
     }
   },
 });
@@ -78,8 +110,6 @@ export const config = {
 };
 
 export default async (req, res, next) => {
-    // does not support fash-referesh our how reload: as stale listerners should be deleted 
-    // await runMiddleware(req, res);
     if (!res.socket.server.apolloServer) {
       console.log(`* apolloServer initialization *`);
   
@@ -89,7 +119,6 @@ export default async (req, res, next) => {
     }
   
     return res.socket.server.apolloServer(req, res, next);
-    // apolloServer.createHandler({ path: "/api/graphql" })
 };
 
 // export default apolloServer.createHandler({ path: '/api/graphql' });

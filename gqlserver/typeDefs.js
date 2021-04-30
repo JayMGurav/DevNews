@@ -27,8 +27,8 @@ export default gql`
   }
 
   type Subscription {
-    newLink: Link
-    newVote: Vote
+    newLink: Link!
+    newVote: Vote!
   }
 
 
@@ -43,12 +43,13 @@ export default gql`
   }
 
   type Query {
-    isRegisteredUser(email: String!): Boolean!
-    user(id: ID!): User
+    me: User!
+    user(id: ID!): User!
     users: [User!]
+    isLoggedIn: Boolean!
+    isRegisteredUser(email: String!): Boolean!
     feed(filter: String, orderBy: LinkOrderByInput): [Link!]
     link(id: ID!): Link
-    isLoggedIn: Boolean!
   }
 
   type Mutation {

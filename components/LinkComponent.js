@@ -10,7 +10,7 @@ export default function LinkComponent({ link, setErrorMessage }){
       linkId: link.id
     },
     update: (cache, {data: {vote}}) => {
-      const orderBy = { createdAt: 'desc' };
+      const orderBy = { createdAt: 'desc', voteCount: 'desc' };
       const data = cache.readQuery({
         query: FEED_QUERY,
         variables: {
@@ -44,7 +44,7 @@ export default function LinkComponent({ link, setErrorMessage }){
   return(
     <Flex my="4" p="3" bg="black.400" wrap="wrap" borderRadius="lg" boxShadow="md" align="center">
       <Box flex="3 1 30ch">
-        <Link color="teal.100" fontSize="sm" href={link.url} isExternal>
+        <Link color="teal.100" fontSize="sm" href={link.url} isExternal rel="noopener noreferrer">
             {link.url.slice(0,30).concat("...")} <ExternalLinkIcon mx="2px" />
         </Link>
         <Text fontSize="large">{link.description}</Text>
@@ -68,7 +68,6 @@ export default function LinkComponent({ link, setErrorMessage }){
           icon={<TriangleUpIcon />} 
           onClick={vote} 
         />
-          {/* <UpVote linkId={link.id}/> */}
       </Flex>
     </Flex>
   )

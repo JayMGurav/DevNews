@@ -1,32 +1,48 @@
 import { useMemo } from 'react'
-import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloClient, InMemoryCache, split } from '@apollo/client';
 import { HttpLink } from '@apollo/client/link/http';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { WebSocketLink } from 'apollo-link-ws';
+// import { SubscriptionClient } from 'subscriptions-transport-ws'
 
 let apolloClient;
 // const APOLLO_STATE = "APOLLO_STATE";
-const uri = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/graphql`;
-// console.log(uri)
-// function createIsomorphicPhoneBookLink(){
-//   if(typeof window == 'undefined'){
-//     const { SchemaLink } = require('@apollo/client/link/schema');
-//     const schema = require('@/gqlserver/schema');
-//     return new SchemaLink({ schema });
-//   }else{
-//     return new HttpLink({
-//       uri: '/api/graphql',
-//       credentials: 'same-origin',
-//     });
-//   }
-// }
+const httpURI = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/graphql`;
+const wsURI = `ws://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/graphqlSubscriptions`;
 
+const wsLink = new WebSocketLink({
+  uri: wsURI,
+  options: {
+    lazy: true,
+    reconnect: true,
+    minTimeout: 9000,
+  },
+  webSocketImpl: require('websocket').w3cwebsocket
+});
+
+
+const httpLink =  new HttpLink({
+  uri: httpURI,
+  credentials: 'same-origin',
+});
+
+
+const link = split(
+  ({query}) => {
+    const { kind, operation } = getMainDefinition(query);    
+    return (
+      kind === 'OperationDefinition' &&
+      operation === 'subscription'
+    );
+  },
+  wsLink,
+  httpLink
+);
 
 function createApolloClient() {
   return new ApolloClient({
+    link,
     ssrMode: typeof window === 'undefined',
-    link:  new HttpLink({
-      uri: uri,
-      credentials: 'same-origin',
-    }),
     cache: new InMemoryCache(),
     
     name: "next_web_client",

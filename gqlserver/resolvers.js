@@ -7,13 +7,14 @@ const LINK_VOTED = "LINK_VOTED";
 
 export default {
   User:{
-    async links(parent, __, {Link}){
-      return await Link.find({postedBy: parent.id}).exec();
+    async links(parent, __, {Link, session}){
+      const id = parent.id || session.userId;
+      return await Link.find({postedBy: id}).exec();
     },
 
-    async votes(parent, __, { Vote }){
+    async votes(parent, __, { Vote, session }){
       return await Vote.find({
-        user: parent.id 
+        user: parent.id || session.userId  
       }).exec();
     },
   },
@@ -41,16 +42,32 @@ export default {
 // Subscriptions
 Subscription: {
   newLink: {
-    subscribe: (_, __ , { pubsub }) => pubsub.asyncIterator([LINK_CREATED]),
+    subscribe: (_, __ , {session, pubsub}) => {
+      // if(!Boolean(session)){
+      //   throw new Error(`Sign in required`)
+      // }
+      return pubsub.asyncIterator([LINK_CREATED]);
+    },
   },
   newVote: {
-    subscribe: (_, __ , { pubsub }) => pubsub.asyncIterator([LINK_VOTED]),
+    subscribe: (_, __ , { session, pubsub }) => {
+      // if(!Boolean(session)){
+      //   throw new Error(`Sign in required`)
+      // }
+      return pubsub.asyncIterator([LINK_VOTED]);
+    }
   }
 },
 
 
 // Queries
   Query: {
+    async me(_parent, __args, {session, User}) {
+      if(!Boolean(session)){
+        throw new Error(`Sign in required!`);
+      }
+      return await User.findById(session.userId).exec();
+    },
     async isLoggedIn(_, __, {session}){
       return Boolean(session?.userId);
     },
@@ -69,9 +86,10 @@ Subscription: {
         $text : { $search: filter }
       } : {};
       
+
       const sortCondition = { 
-        "voteCount" : orderBy?.voteCount || -1,
-        "createdAt" : orderBy?.createdAt || -1
+        "createdAt" : orderBy?.createdAt === 'asc' ? 1 : -1,
+        "voteCount" : orderBy?.voteCount === 'asc' ? 1 : -1,
       };
       
       if(filter){
@@ -152,8 +170,8 @@ Subscription: {
         description,
         postedBy: session.userId
       });
-
-      pubsub.publish("LINK_CREATED", {newLink});
+      
+      pubsub.publish(LINK_CREATED, {newLink});
       return newLink;
     },
 
@@ -187,7 +205,7 @@ Subscription: {
       }).exec();
       
       if(Boolean(vote)){
-        throw new Error(`Already voted for link: ${linkId}`)
+        throw new Error(`Already voted for this link`)
       }
       
       const newVote =  await Vote.create({
@@ -201,7 +219,7 @@ Subscription: {
         {new: true}
       )
       // publish 
-      pubsub.publish("LINK_VOTED", {
+      pubsub.publish(LINK_VOTED, {
         newVote
       });
 

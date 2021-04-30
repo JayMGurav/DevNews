@@ -60,3 +60,8 @@ export const LOGIN_MUTATION = gql`
     }
   }
 `;
+export const SIGNOUT_MUTATION = gql`
+  mutation {
+    signOut
+  }
+`;
