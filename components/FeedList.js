@@ -21,6 +21,7 @@ export default function FeedList(){
     variables: {
       orderBy: { createdAt: 'desc', voteCount: 'desc' }
     },
+    pollInterval: 3000
   });
  
   subscribeToMore({
