@@ -23,27 +23,27 @@ export default function FeedList(){
     },
   });
  
-  // subscribeToMore({
-  //   document: NEW_LINKS_SUBSCRIPTION,
-  //   updateQuery: (prevRes, { subscriptionData }) => {
-  //     if (!subscriptionData.data) return prevRes;
+  subscribeToMore({
+    document: NEW_LINKS_SUBSCRIPTION,
+    updateQuery: (prevRes, { subscriptionData }) => {
+      if (!subscriptionData.data) return prevRes;
 
-  //     const newLink = subscriptionData.data.newLink;
-  //     const exists = prevRes.feed.find(
-  //       ({ id }) => id === newLink.id
-  //     );
+      const newLink = subscriptionData.data.newLink;
+      const exists = prevRes.feed.find(
+        ({ id }) => id === newLink.id
+      );
 
-  //     if (exists) return prevRes;
+      if (exists) return prevRes;
 
-  //     return Object.assign({}, prevRes, {
-  //       feed:  [newLink, ...prevRes.feed]
-  //     });
-  //   }
-  // })
+      return Object.assign({}, prevRes, {
+        feed:  [newLink, ...prevRes.feed]
+      });
+    }
+  })
 
-  // subscribeToMore({
-  //   document: NEW_VOTES_SUBSCRIPTION
-  // });
+  subscribeToMore({
+    document: NEW_VOTES_SUBSCRIPTION
+  });
 
   useEffect(() => {
     let timeOutId;

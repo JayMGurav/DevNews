@@ -13,7 +13,7 @@ import {
   Skeleton,
   Spacer,
   Badge,
-  Avatar
+  Avatar,
 } from '@chakra-ui/react';
 import {ExternalLinkIcon} from "@chakra-ui/icons";
 
@@ -38,6 +38,7 @@ const MinimalLinkView = ({link}) => (
 
 
 export default function Profile(){
+
   const  { data, loading, error} = useQuery(ME_DETAILS,{
     fetchPolicy: "cache-and-network"
   });

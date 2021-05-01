@@ -23,6 +23,6 @@ const LinkSchema = new mongoose.Schema({
 
 LinkSchema.index(
   {description: "text", url: "text"},
-  {name: "LinkIndex", description: 10, url: 5 }
+  {name: "LinkIndex", description: 10, url: 8 }
 )
 export default mongoose.models.Link || mongoose.model('Link', LinkSchema)

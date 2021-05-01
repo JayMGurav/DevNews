@@ -57,7 +57,7 @@ export default function LinkComponent({ link, setErrorMessage }){
       <Spacer/>
       <Flex flex="1 1 10ch" m="2" align="center" justify="flex-end">
         <Badge variant="subtle" color="black.200" bg="teal.50" boxShadow="md" borderRadius="full" px="3" mx="4">
-          {link.voteCount || "0"}
+          {link.votes.length || "0"}
         </Badge>
         <IconButton 
           aria-label="Upvote" 

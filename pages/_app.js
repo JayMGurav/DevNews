@@ -1,9 +1,10 @@
 import { useApollo } from "@/hooks/useApollo";
 import { ApolloProvider } from "@apollo/client";
-import { ChakraProvider } from "@chakra-ui/react"
+import { ChakraProvider,  } from "@chakra-ui/react"
 
 import "@/styles/global.css";
 import theme from "@/styles/theme";
+
 
 export default function MyApp({ Component, pageProps }) {
 

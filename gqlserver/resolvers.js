@@ -86,10 +86,14 @@ Subscription: {
         $text : { $search: filter }
       } : {};
       
+      const mapSortField = {
+        asc: 1,
+        desc: -1
+      }
 
       const sortCondition = { 
-        "createdAt" : orderBy?.createdAt === 'asc' ? 1 : -1,
-        "voteCount" : orderBy?.voteCount === 'asc' ? 1 : -1,
+        "createdAt" : orderBy?.createdAt ? mapSortField[orderBy?.createdAt] : -1,
+        "voteCount" : orderBy?.voteCount ? mapSortField[orderBy?.voteCount] : -1,
       };
       
       if(filter){
@@ -205,7 +209,7 @@ Subscription: {
       }).exec();
       
       if(Boolean(vote)){
-        throw new Error(`Already voted for this link`)
+        throw new Error(`You have already voted for this link`)
       }
       
       const newVote =  await Vote.create({
