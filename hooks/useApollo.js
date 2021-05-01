@@ -8,7 +8,7 @@ import { WebSocketLink } from 'apollo-link-ws';
 let apolloClient;
 // const APOLLO_STATE = "APOLLO_STATE";
 const httpURI = `https://${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}/api/graphql`;
-const wsURI = `ws://${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}/api/graphqlSubscriptions`;
+const wsURI = `wss://${process.env.NEXT_PUBLIC_DEPLOYMENT_URL}/api/graphqlSubscriptions`;
 
 const wsLink = new WebSocketLink({
   uri: wsURI,
